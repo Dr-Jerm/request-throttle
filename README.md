@@ -11,7 +11,7 @@ var throttle = new Throttle(int, int);
 throttle.add(asyncFunction, asyncFunctionArgument1, asyncFunctionArgument2, ...);
 ```
 
-## Quick Examples
+## Usage
 
 ```javascript
 var Throttle = require('throttle');
@@ -37,3 +37,7 @@ var asyncRequest = function (action, resource, data) {
   return deferred.promise;
 }
 ```
+
+## Release History
+
+* 0.0.0 Initial release

@@ -1,11 +1,12 @@
 {
   "name": "throttle",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "Small helper for dealing with APIs that only allow a set number of requests per some block of time.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Jeremy Bernstein <utilityjerm@gmail.com> (http://jerm.io)",
+  "license": "MIT",
+
 }
