@@ -1,6 +1,6 @@
 {
   "name": "request-throttle",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Small helper for dealing with APIs that only allow a set number of requests per some block of time.",
   "main": "index.js",
   "scripts": {

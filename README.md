@@ -7,6 +7,8 @@ Throttle is a utility made to interface with APIs that have a "max requests per 
 The primary method of adding functions to the throttle is to call the add function passing in a reference to the function as well as the arguments to that function.
 
 ```javascript
+// @param {int} requestCount  number of requests to be made
+// @param {int} perMs         duration of time that the above number of requests can be made in
 var throttle = new Throttle(int, int);
 throttle.add(asyncFunction, asyncFunctionArgument1, asyncFunctionArgument2, ...);
 ```
@@ -40,4 +42,4 @@ var asyncRequest = function (action, resource, data) {
 
 ## Release History
 
-* 0.0.1 Initial release
+* 0.0.2 Initial release
