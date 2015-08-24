@@ -40,4 +40,4 @@ var asyncRequest = function (action, resource, data) {
 
 ## Release History
 
-* 0.0.0 Initial release
+* 0.0.1 Initial release
