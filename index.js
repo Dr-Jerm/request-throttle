@@ -1,54 +1,88 @@
-var request = require('request');
-var Q = require('q');
 
-var Throttle = require('./throttle.js');
+/**
+ * class Throttle
+ *
+ * For a given number of requests, and the number of requests that can occur during that time
+ * only call async functions given to the throttle at a rate that complies with the given
+ * time restraints.
+ *
+ * use: var throttle = new Throttle(int, int);
+ * throttle.add(asyncFunction, asyncFunctionArgument1, asyncFunctionArgument2, ...);
+ * 
+ * @param {int} requestCount  number of requests to be made
+ * @param {int} perMs         duration of time that the above number of requests can be made in
+ */
+var Throttle = function (requestCount, perMs) {
 
-var throttle = new Throttle(2, 10000);
+  /**
+   * GLOBALS
+   */
 
-var asyncRequest = function (action, resource, data) {
-  var deferred = Q.defer();
+  var bucket = [];
+  var timeBetweenRequests = perMs / requestCount;
+  var throttleTimer = null;
 
-  var randTimeout = Math.floor(Math.random()*200);
+  /**
+   * STATUS
+   */
+  var isRunning = false;
 
-  var apiCall = function () {
-    deferred.resolve({
-      action: action,
-      resource: resource,
-      data: data
-    });
-  };
+  /**
+   * Add a async request to the throttle queue. Variatic function in that any number of input 
+   * parameters will be accepted and passed into the async function.
+   * 
+   * @param {function} asyncFunction    The function that will be added to the throttle queue and run when it gets it's chance
+   * @param {any} functionParameters... Additional arguments will be applied to the async function when it is time to be called
+   */
+  this.add = function (asyncFunction) {
+    var argumentsAsArray = Array.prototype.slice.call(arguments);;
+    var asyncRequestFunction = argumentsAsArray.shift();
 
-  throttle.add(setTimeout.bind(null, apiCall, randTimeout));
+    var asyncRequestFunctionWithArguments = asyncRequestFunction.bind.apply(asyncRequestFunction, [null].concat(argumentsAsArray));
 
-  return deferred.promise;
+    bucket.push(asyncRequestFunctionWithArguments);
+
+    if (!isRunning) {
+      crunch();
+    }
+  }
+
+  /**
+   * Returns a status object
+   * 
+   * @return {isRunning: boolean}
+   */
+  this.status = function () {
+    return {
+      isRunning: isRunning
+    };
+  }
+
+  /**
+   * Stops the throttle from continuing execution. Does not clear the bucket.
+   * Throttle can be enabled again by adding something to the throttle.
+   */
+  this.stop = function () {
+    clearTimeout(timer);
+    isRunning = false;
+  }
+
+  // recursively works through the request bucket. Ends when the bucket is empty
+  var crunch = function () {
+    if (bucket.length > 0) {
+      isRunning = true;
+      var asyncRequest = bucket.shift(); // grab the new async request
+
+      asyncRequest();
+
+      timer = setTimeout(function () { // and wait until the next async is able to run again
+        crunch();
+      }, timeBetweenRequests);
+
+    } else {
+      isRunning = false;
+    }
+  }
 }
 
-// generate requests
-
-  var promises1 = [];
-
-for (var i = 0; i < 3; i++) {
-  promises1.push(asyncRequest("create","People", {please:"please"}));
-}
-
-var now1 = new Date().getTime();
-
-Q.all(promises1).then(function (results) {
-  var doneTime1 = new Date().getTime();
-  console.log("elapsed time: " + (doneTime1 - now1));
-  console.log("calls: " + i);
-});
-
-var promises2 = [];
-
-for (var i = 0; i < 3; i++) {
-  promises2.push(asyncRequest("create","People", {please:"please"}));
-}
-
-var now2 = new Date().getTime();
-
-Q.all(promises2).then(function (results) {
-  var doneTime2 = new Date().getTime();
-  console.log("elapsed time: " + (doneTime2 - now2));
-  console.log("calls: " + i);
-});
+module.exports = Throttle;
